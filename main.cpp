@@ -68,10 +68,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3d* objChr = Object3d::Create();
 
 
-	objPost->SetModel(modelPost);
+	objPost->SetModel(modelChr);
 	objChr->SetModel(modelPost);
 
-	objPost->SetPosition({ -10,0,-5 });
+	objPost->SetPosition({ -10,30,-20 });
 	objChr->SetPosition({ +10,0,+5 });
 
 	objPost->Update();
@@ -80,6 +80,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion 描画初期化処理
 
 	int counter = 0; // アニメーションの経過時間カウンター
+	XMFLOAT3 pPos = { -10,30,-20 };
+	//int flag = 0;
+	float G = 9.80665f;
+	float time = 0;
 
 	while (true)  // ゲームループ
 	{
@@ -98,13 +102,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		counter++;
 		counter %= cycle; // 周期を超えたら0に戻る
 		float scale = (float)counter / cycle; // [0,1]の数値
-
+		time+=0.05f;
 		scale *= 360.0f;
-		objPost->SetModel(modelPost);
-		objChr->SetModel(modelPost);
+		
 		if (input->TriggerKey(DIK_0)) // 数字の0キーが押されていたら
 		{
 			OutputDebugStringA("Hit 0\n");  // 出力ウィンドウに「Hit 0」と表示
+
 		}
 
 		float clearColor[] = { 0.1f,0.25f, 0.5f,0.0f }; // 青っぽい色
@@ -113,10 +117,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			// 画面クリアカラーの数値を書き換える
 			clearColor[1] = 1.0f;
-			objPost->SetModel(modelChr);
-			objChr->SetModel(modelChr);
+			pPos = { -10,30,-20 };
+			time = 0;
+			//objPost->SetModel(modelChr);
+		//	objChr->SetModel(modelChr);
 		}
-
+		pPos.y -= (1.0f / 2.0f) * G * (time * time);
 		// 座標操作
 		if (input->PushKey(DIK_UP) || input->PushKey(DIK_DOWN) || input->PushKey(DIK_RIGHT) || input->PushKey(DIK_LEFT))
 		{
@@ -128,6 +134,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 
 		}
+		objPost->SetPosition(pPos);
 
 		objPost->Update();
 		objChr->Update();
@@ -140,7 +147,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		Object3d::PreDraw(dxCommon->GetCmdList());
 		objPost->Draw();
-		objChr->Draw();
+	//	objChr->Draw();
 		Object3d::PostDraw();
 
 		spriteCommon->PreDraw();
